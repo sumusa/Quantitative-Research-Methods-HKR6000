@@ -1,30 +1,236 @@
 ---
-title: "assignment_1"
+title: "Assignment 1"
 author: "Sumayyah Musa"
 date: "1/20/2021"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
+  word_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(pastecs)
+library(plyr)
+library(knitr)
 ```
 
-## R Markdown
+### Reading in the simulated data
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+df <- read.csv("simulated_data_explore.csv")
+head(df, 5)
 ```
 
-## Including Plots
+### Changing the type of variable "id"
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+df$id <- as.character(df$id)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## 1. Identify the variable types for each variable in the dataset by taking a glimpse of the data
+
+```{r}
+glimpse(df)
+```
+
+1. id 
+      * Definition - a variable that identifies each participant.
+      * Type - Qualitative, Categorical, Nominal
+2. age_years
+      * Definition - age of the participants in years.
+      * Type - Quantitative, Numerical, Continuous
+3. bench_press_max_lbs 
+      * Definition - a measure of the maximal weight a subject can lift with one repetition, using the bench press exercise, in pounds.
+      * Type - Quantitative, Numerical, Continuous
+4. height_cm 
+      * Definition - height of the participants in centimeters.
+      * Type - Quantitative, Numerical, Continuous
+5. weight_kg
+      * Definition - weight of the participants in kilograms.
+      * Type - Quantitative, Numerical, Continuous
+        
+## 2. Calculate the BMI for each participant
+
+Body Mass Index (BMI) is a person's weight in kilograms divided by the square of height in meters
+
+```{r}
+df <- df %>% 
+  mutate(bmi = weight_kg/((height_cm/100)^2))
+```
+
+## 3. Calculate a young and old variable as per data dictionary
+
+```{r}
+df <- df %>%
+          mutate(age_category = case_when(
+            age_years < 40 ~ "young", 
+            age_years >= 40 ~ "old", 
+          ))
+glimpse(df)
+```
+
+## 4. Calculate the mean and standard deviation for the variables where it is appropriate, including the new variables
+
+### Mean and SD of Age in Years
+
+```{r}
+mean(df$age_years)
+sd(df$age_years)
+```
+
+The mean age is 51 years. This sample is not representative of the population, as it is slightly older than the median age of the resident population in Newfoundland and Labrador, which is 47.4 years (https://www.statista.com/statistics/444816/canada-median-age-of-resident-population-by-province/).
+
+The standard deviation is about 37% less than the mean age, making the data values a bit closely spread to the mean, but might not be so reliable.
+
+### Mean and SD of Bench Press Max in Pounds
+
+```{r}
+mean(df$bench_press_max_lbs)
+sd(df$bench_press_max_lbs)
+```
+
+### Mean and SD of height in Centimeters
+
+```{r}
+mean(df$height_cm)
+sd(df$height_cm)
+```
+
+### Mean and SD of weight in kilograms
+
+```{r}
+mean(df$weight_kg)
+sd(df$weight_kg)
+```
+
+### Mean and SD of bmi in kg/m^2
+
+```{r}
+mean(df$bmi)
+sd(df$bmi)
+```
+
+## 5. Calculate the frequencies for the variables where it is appropriate to do so
+
+```{r}
+count(df,'age_category')
+```
+
+## 6. Draw the histogram and discuss the normality of the data
+
+### Histogram of Age
+
+```{r, echo=FALSE}
+age_hist <- df %>%
+  ggplot(aes(x=age_years)) +
+    geom_histogram(binwidth=2, fill="#69b3a2", color="#e9ecef", alpha=0.9)
+
+age_hist
+```
+
+### Histogram of Bench Press Max
+
+```{r, echo=FALSE}
+bench_press_hist <- df %>%
+  ggplot(aes(x=bench_press_max_lbs)) +
+    geom_histogram(binwidth=4, fill="#69b3a2", color="#e9ecef", alpha=0.9)
+
+bench_press_hist
+```
+
+### Histogram of Height
+
+```{r, echo=FALSE}
+height_hist <- df %>%
+  ggplot(aes(x = height_cm)) +
+    geom_histogram(binwidth = 3, fill = "#69b3a2", color = "#e9ecef", alpha = 0.9)
+
+height_hist
+```
+
+### Histogram of Weight
+
+```{r, echo=FALSE}
+weight_hist <- df %>%
+  ggplot(aes(x = weight_kg)) +
+    geom_histogram(binwidth = 3, fill = "#69b3a2", color = "#e9ecef", alpha = 0.9)
+
+weight_hist
+```
+
+### Histogram of BMI
+
+```{r, echo=FALSE}
+bmi_hist <- df %>%
+  ggplot(aes(x = bmi)) +
+    geom_histogram(binwidth = 2, fill = "#69b3a2", color = "#e9ecef", alpha = 0.9)
+
+bmi_hist
+```
+
+## 7. Are there missing data
+
+```{r}
+map(df, ~sum(is.na(.)))
+```
+There is no missing data in the sample, across all the variables.
+
+## 8. Are there outliers?
+
+A boxplot summarizes the distribution of a continuous variable and notably displays the median and potential outliers in the variable. The mean has been included in the plot with the use of red circle for better comparison.
+
+```{r}
+age_outlier <- ggplot(df) +
+  aes(x = "", y = age_years) +
+  geom_boxplot(fill = "#0c4c8a", alpha = 0.9) +
+  stat_summary(fun=mean, geom="point", shape=20, size=7, color="red", fill="red") +
+  theme_minimal()
+age_outlier
+```
+
+```{r}
+height_outlier <- ggplot(df) +
+  aes(x = "", y = height_cm) +
+  geom_boxplot(fill = "#0c4c8a") +
+  stat_summary(fun=mean, geom="point", shape=20, size=7, color="red", fill="red") +
+  theme_minimal()
+height_outlier
+```
+
+```{r}
+bench_press_outlier <- ggplot(df) +
+  aes(x = "", y = bench_press_max_lbs) +
+  geom_boxplot(fill = "#0c4c8a") +
+  stat_summary(fun=mean, geom="point", shape=20, size=7, color="red", fill="red") +
+  theme_minimal()
+bench_press_outlier
+```
+
+```{r}
+weight_outlier <- ggplot(df) +
+  aes(x = "", y = weight_kg) +
+  geom_boxplot(fill = "#0c4c8a") +
+  stat_summary(fun=mean, geom="point", shape=20, size=7, color="red", fill="red") +
+  theme_minimal()
+weight_outlier
+```
+
+```{r}
+bmi_outlier <- ggplot(df) +
+  aes(x = "", y = bmi) +
+  geom_boxplot(fill = "#0c4c8a") +
+  stat_summary(fun=mean, geom="point", shape=20, size=7, color="red", fill="red") +
+  theme_minimal()
+bmi_outlier
+```
+
+
+
+
+
+
+
+
