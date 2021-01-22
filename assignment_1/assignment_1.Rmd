@@ -83,7 +83,7 @@ sd(df$age_years)
 
 The mean age is 51 years. This sample is not representative of the population, as it is slightly older than the median age of the resident population in Newfoundland and Labrador, which is 47.4 years (https://www.statista.com/statistics/444816/canada-median-age-of-resident-population-by-province/).
 
-The standard deviation is about 37% less than the mean age, making the data values a bit closely spread to the mean, but might not be so reliable.
+The standard deviation is about 37% of the mean age, making the data values a bit closely spread to the mean, but might not be so reliable.
 
 ### Mean and SD of Bench Press Max in Pounds
 
@@ -92,12 +92,16 @@ mean(df$bench_press_max_lbs)
 sd(df$bench_press_max_lbs)
 ```
 
+The mean is 109.134 pounds and standard deviation of 50, which shows that there is a large variation in the values of bench press max.  
+
 ### Mean and SD of height in Centimeters
 
 ```{r}
 mean(df$height_cm)
 sd(df$height_cm)
 ```
+
+The mean height is 154.86cm, which shows that the participants are averagely short. The sample mean height is not representative of the population considering that the average male and female human height in Canada is 178cm and 165cm (https://www.worlddata.info/average-bodyheight.php#by-population). The standard deviation is also small, shows that the sample values are closely spread around the mean.
 
 ### Mean and SD of weight in kilograms
 
@@ -106,12 +110,16 @@ mean(df$weight_kg)
 sd(df$weight_kg)
 ```
 
+The mean weight is 61.91kg, which is not representative of the population considering that the average male and female weight in Canada is 87.3kg and 72.4kg (https://www.worlddata.info/average-bodyheight.php#by-population). The standard deviation is relatively small, shows that the sample values are a bit closely spread around the mean.
+
 ### Mean and SD of bmi in kg/m^2
 
 ```{r}
 mean(df$bmi)
 sd(df$bmi)
 ```
+
+The body mass index is 26, which means that more of the participants are overweight (https://www.cdc.gov/healthyweight/assessing/bmi/adult_bmi/index.html). The sample data is representative of the population as the average bmi of a Canadian man and woman is 27.4 and 26.7 respectively (https://www.worlddata.info/average-bodyheight.php#by-population). The standard deviation is small, which shows that the sample values are closely spread around the mean.
 
 ## 5. Calculate the frequencies for the variables where it is appropriate to do so
 
@@ -131,6 +139,8 @@ age_hist <- df %>%
 age_hist
 ```
 
+Age appears to be mostly a uniform distribution with nearly an equal number of people across age categories in the sample.
+
 ### Histogram of Bench Press Max
 
 ```{r, echo=FALSE}
@@ -140,6 +150,8 @@ bench_press_hist <- df %>%
 
 bench_press_hist
 ```
+
+Bench Press Max gives a Count type or Poisson distribution with each participant having their bench press max across the sample.
 
 ### Histogram of Height
 
@@ -151,6 +163,8 @@ height_hist <- df %>%
 height_hist
 ```
 
+Height gives a normal distribution, the values are widely spread out.
+
 ### Histogram of Weight
 
 ```{r, echo=FALSE}
@@ -161,6 +175,8 @@ weight_hist <- df %>%
 weight_hist
 ```
 
+Weight gives a normal distribution, the values are widely spread out.
+
 ### Histogram of BMI
 
 ```{r, echo=FALSE}
@@ -170,6 +186,8 @@ bmi_hist <- df %>%
 
 bmi_hist
 ```
+
+BMI gives a normal distribution but is somewhat leptokurtic. The values are closely spread to the mean. 
 
 ## 7. Are there missing data
 
@@ -191,6 +209,8 @@ age_outlier <- ggplot(df) +
 age_outlier
 ```
 
+The box plot shows no evidence of outliers in the age.
+
 ```{r}
 height_outlier <- ggplot(df) +
   aes(x = "", y = height_cm) +
@@ -199,6 +219,8 @@ height_outlier <- ggplot(df) +
   theme_minimal()
 height_outlier
 ```
+
+There are a number of potential outliers below and above the minimum and maximum for height.
 
 ```{r}
 bench_press_outlier <- ggplot(df) +
@@ -209,6 +231,8 @@ bench_press_outlier <- ggplot(df) +
 bench_press_outlier
 ```
 
+For bench press max, there are potential outliers above the maximum.
+
 ```{r}
 weight_outlier <- ggplot(df) +
   aes(x = "", y = weight_kg) +
@@ -218,6 +242,8 @@ weight_outlier <- ggplot(df) +
 weight_outlier
 ```
 
+There is evidence of outliers above and below the mimum and maximum for weight.
+
 ```{r}
 bmi_outlier <- ggplot(df) +
   aes(x = "", y = bmi) +
@@ -226,7 +252,7 @@ bmi_outlier <- ggplot(df) +
   theme_minimal()
 bmi_outlier
 ```
-
+Potential outliers are evident in the boxplot for BMI.
 
 
 
