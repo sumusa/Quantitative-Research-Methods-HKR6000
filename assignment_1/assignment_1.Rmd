@@ -200,6 +200,8 @@ There is no missing data in the sample, across all the variables.
 
 A boxplot summarizes the distribution of a continuous variable and notably displays the median and potential outliers in the variable. The mean has been included in the plot with the use of red circle for better comparison.
 
+### Boxplot for Age
+
 ```{r}
 age_outlier <- ggplot(df) +
   aes(x = "", y = age_years) +
@@ -210,6 +212,8 @@ age_outlier
 ```
 
 The box plot shows no evidence of outliers in the age.
+
+### Boxplot for Height
 
 ```{r}
 height_outlier <- ggplot(df) +
@@ -222,6 +226,8 @@ height_outlier
 
 There are a number of potential outliers below and above the minimum and maximum for height.
 
+### Boxplot for Bench press max
+
 ```{r}
 bench_press_outlier <- ggplot(df) +
   aes(x = "", y = bench_press_max_lbs) +
@@ -232,6 +238,8 @@ bench_press_outlier
 ```
 
 For bench press max, there are potential outliers above the maximum.
+
+### Boxplot for weight
 
 ```{r}
 weight_outlier <- ggplot(df) +
@@ -244,6 +252,8 @@ weight_outlier
 
 There is evidence of outliers above and below the mimum and maximum for weight.
 
+### Boxplot for BMI
+
 ```{r}
 bmi_outlier <- ggplot(df) +
   aes(x = "", y = bmi) +
@@ -252,6 +262,7 @@ bmi_outlier <- ggplot(df) +
   theme_minimal()
 bmi_outlier
 ```
+
 Potential outliers are evident in the boxplot for BMI.
 
 
