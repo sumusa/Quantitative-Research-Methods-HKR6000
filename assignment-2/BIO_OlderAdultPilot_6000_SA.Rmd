@@ -1,0 +1,84 @@
+---
+title: "Assignment 2"
+author: "Daniel Fuller"
+date: "25/01/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Assignment 2
+
+### Libraries 
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+```
+
+### Read in the Data
+
+```{r}
+data <- read_csv("/Users/dfuller/Desktop/Thesis Analysis/BIO_OlderAdultPilot_6000_SA.csv")
+```
+
+### Checking data
+
+```{r}
+glimpse(data)
+```
+
+### Recode Employ
+
+```{r}
+data <- data %>% 
+          mutate(employ_cat = case_when(
+            Employ == 1 ~ "full_time", 
+            Employ == 2 ~ "part_time", 
+            Employ == 3 ~ "unemployed", 
+            Employ == 4 ~ "retired",
+            TRUE ~ "other"
+          ))
+
+table(data$Employ, data$employ_cat)
+
+table(data$employ_cat)
+```
+
+### Histogram Plot
+
+```{r}
+barr1_histogram <- ggplot(data = data, aes(Barr1)) + 
+                  geom_histogram()
+
+plot(barr1_histogram)
+```
+
+### Box Plot
+
+```{r}
+barr1_boxplot <- ggplot(data = data, aes(Barr1)) + 
+                  geom_boxplot() +
+                  coord_flip()
+
+plot(barr1_boxplot)
+```
+
+### Scatter Plot
+
+```{r}
+barr1_barr2_scatter <- ggplot(data = data, aes(x = Barr1, y = Barr2)) + 
+                        geom_point() + 
+                        theme_classic()
+
+plot(barr1_barr2_scatter)
+```
+
+### Correlation
+
+```{r}
+cor(data$Barr1, data$Barr2, use = "na.or.complete", method = "pearson")
+```
+

@@ -1,0 +1,167 @@
+---
+title: "Assignment 2"
+author: "Sumayyah Musa"
+date: "1/27/2021"
+output: html_document
+---
+
+### Import necessary libraries
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(pastecs)
+library(plyr)
+library(knitr)
+```
+
+## Read in the data
+
+```{r cars}
+df <- read.csv("BIO_OlderAdultPilot_6000_SA.csv")
+head(df)
+```
+### Create the "motivation" and "physical_activity" variables
+
+```{r}
+df <- df %>% 
+  mutate(motivation = ((Motive5 + Motive9 + Motive12 + Motive19)*-3) + ((Motive1 + Motive6 + Motive11 + Motive16)*-2) + ((Motive2 + Motive7 + Motive13)*-1) + ((Motive3 + Motive8 + Motive14 + Motive17)*2) + ((Motive4 + Motive10 + Motive15 + Motive18)*3))
+head(df)
+```
+
+```{r}
+df <- df %>% 
+  mutate(physical_activity = (9*Stren) + (5*Mod) + (3*Mild))
+head(df)
+```
+
+## Part 1 - State a research question and state the independent and dependent variables
+
+The research question to be answered is: What relationship exists between the degree of physical activity and motivation to exercise among older adults living in St. John's?
+
+* Independent variable - Motivation to exercise (motivation)
+* Dependent variable - degree of physical activity (physical_activity)
+
+## Part 2 - Describe the sample
+
+### Gender
+
+```{r}
+df <- df %>% 
+          mutate(sex_cat = case_when(
+            Sex == 0 ~ "male", 
+            Sex == 1 ~ "female", 
+            TRUE ~ "other"
+          ))
+table(df$sex_cat)
+```
+
+### Highest Level of Education
+
+```{r}
+df <- df %>% 
+          mutate(edu_cat = case_when(
+            Educat == 1 ~ "elementary_school", 
+            Educat == 2 ~ "high_school",
+            Educat == 3 ~ "some_sec_education",
+            Educat == 4 ~ "diploma_or_cert",
+            Educat == 5 ~ "university",
+            Educat == 6 ~ "graduate",
+            Educat == 7 ~ "other"
+            #TRUE ~ "other"
+          ))
+table(df$edu_cat)
+```
+
+### Year of Birth
+
+```{r}
+df <- df %>% 
+        mutate(age = 2016 - Year)
+round(stat.desc(df$age),0)
+```
+
+### Marital Status
+
+```{r}
+df <- df %>% 
+          mutate(marist_cat = case_when(
+            Marist == 1 ~ "single_never_married", 
+            Marist == 2 ~ "married",
+            Marist == 3 ~ "separated",
+            Marist == 4 ~ "divorced",
+            Marist == 5 ~ "widowed_and_single",
+            Marist == 6 ~ "widowed_and_remarried",
+            TRUE ~ "other"
+          ))
+table(df$marist_cat)
+```
+
+### Annual Household Income
+
+```{r}
+df <- df %>% 
+          mutate(income_cat = case_when(
+            Income == 1 ~ "less_than_10k", 
+            Income == 2 ~ "10k_to_19k",
+            Income == 3 ~ "20k_to_29k",
+            Income == 4 ~ "30k_to_39k",
+            Income == 5 ~ "40k_to_49k",
+            Income == 6 ~ "50k_to_59k",
+            Income == 7 ~ "60k_to_79k",
+            Income == 8 ~ "80k_to_99k",
+            Income == 9 ~ "over_100k",
+            TRUE ~ "other"
+          ))
+table(df$income_cat)
+```
+
+### Employment Status
+
+```{r}
+df <- df %>% 
+          mutate(employ_cat = case_when(
+            Employ == 1 ~ "full_time", 
+            Employ == 2 ~ "part_time", 
+            Employ == 3 ~ "unemployed", 
+            Employ == 4 ~ "retired",
+            TRUE ~ "other"
+          ))
+table(df$employ_cat)
+```
+
+## Part 3 - Explore the data
+* Discuss the normality of the data.
+* Must report and discuss the following for all main variables (IV & DV):
+        * Histograms
+        * Skewness & Kurtosis
+        * Kolmogorov-Smirnov test
+* Identify and discuss any outliers by presenting boxplots for all main variables (IV & DV).
+* Descriptive statistics for all main variables (IV & DV) (mean, standard deviation, and standard error)
+
+### 
+```{r}
+motiv_hist <- df %>%
+  ggplot(aes(x=motivation)) +
+    geom_histogram(binwidth=3, fill="#69b3a2", color="#e9ecef", alpha=0.9)
+motiv_hist
+```
+
+```{r}
+pa_hist <- df %>%
+  ggplot(aes(x=physical_activity)) +
+    geom_histogram(binwidth=3, fill="#69b3a2", color="#e9ecef", alpha=0.9)
+pa_hist
+```
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
