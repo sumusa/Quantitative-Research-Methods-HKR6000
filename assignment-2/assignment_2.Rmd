@@ -15,7 +15,7 @@ library(plyr)
 library(knitr)
 ```
 
-## Read in the data
+## Read in the dataset
 
 ```{r cars}
 df <- read.csv("BIO_OlderAdultPilot_6000_SA.csv")
@@ -26,23 +26,24 @@ head(df)
 ```{r}
 df <- df %>% 
   mutate(motivation = ((Motive5 + Motive9 + Motive12 + Motive19)*-3) + ((Motive1 + Motive6 + Motive11 + Motive16)*-2) + ((Motive2 + Motive7 + Motive13)*-1) + ((Motive3 + Motive8 + Motive14 + Motive17)*2) + ((Motive4 + Motive10 + Motive15 + Motive18)*3))
-head(df)
 ```
 
 ```{r}
 df <- df %>% 
   mutate(physical_activity = (9*Stren) + (5*Mod) + (3*Mild))
-head(df)
 ```
 
 ## Part 1 - State a research question and state the independent and dependent variables
-
-The research question to be answered is: What relationship exists between the degree of physical activity and motivation to exercise among older adults living in St. John's?
+        * State and describe the variables
+        
+The research question to be answered is: What relationship exists between the degree of physical activity and motivation to exercise among older adults living in NL?
 
 * Independent variable - Motivation to exercise (motivation)
+This score is calculated 
 * Dependent variable - degree of physical activity (physical_activity)
 
 ## Part 2 - Describe the sample
+        * Discuss the appropriate descriptive statistics (i.e., frequencies, mean, standard deviation, etc.) of socio-demographic variables.
 
 ### Gender
 
@@ -55,6 +56,8 @@ df <- df %>%
           ))
 table(df$sex_cat)
 ```
+The number of female older adults is 35 which represents 56.5% of the total number of participants. This sample is representative of the population, with more female older adults in NL (https://nl.communityaccounts.ca/profiles.asp?_=vb7En4WVgbOxz7ZjS5bIzKufwJKllbfAtYyDzZKykcnFnw__)
+
 
 ### Highest Level of Education
 
@@ -67,11 +70,13 @@ df <- df %>%
             Educat == 4 ~ "diploma_or_cert",
             Educat == 5 ~ "university",
             Educat == 6 ~ "graduate",
-            Educat == 7 ~ "other"
-            #TRUE ~ "other"
+            Educat == 7 ~ "other",
+            TRUE ~ "other"
           ))
 table(df$edu_cat)
 ```
+
+More of the participants had education up till diploma or certificate level.
 
 ### Year of Birth
 
@@ -80,6 +85,8 @@ df <- df %>%
         mutate(age = 2016 - Year)
 round(stat.desc(df$age),0)
 ```
+
+Mean age is 81 with SD of 8, which shows that the values are closely spread to the mean. The SE is relatively small, which shows that the sample mean is representative of the population.
 
 ### Marital Status
 
@@ -96,6 +103,8 @@ df <- df %>%
           ))
 table(df$marist_cat)
 ```
+
+A higher number of the participants are married.
 
 ### Annual Household Income
 
@@ -116,6 +125,8 @@ df <- df %>%
 table(df$income_cat)
 ```
 
+Most of the participants are earning an average income annually.
+
 ### Employment Status
 
 ```{r}
@@ -130,22 +141,21 @@ df <- df %>%
 table(df$employ_cat)
 ```
 
-## Part 3 - Explore the data
-* Discuss the normality of the data.
-* Must report and discuss the following for all main variables (IV & DV):
-        * Histograms
-        * Skewness & Kurtosis
-        * Kolmogorov-Smirnov test
-* Identify and discuss any outliers by presenting boxplots for all main variables (IV & DV).
-* Descriptive statistics for all main variables (IV & DV) (mean, standard deviation, and standard error)
+53 out of the 62 participants were retired.
 
-### 
+## Part 3 - Explore the data
+
+### Histogram of Motivation
+
 ```{r}
 motiv_hist <- df %>%
   ggplot(aes(x=motivation)) +
     geom_histogram(binwidth=3, fill="#69b3a2", color="#e9ecef", alpha=0.9)
 motiv_hist
 ```
+The distribution of motivation looks like a multimodal distribution with seems to suggest that the participants had several patterns of motivation scores. It also looks negatively skewed with more motivation scores clustered around the high end of the scale.
+
+### Histogram for Physical activity 
 
 ```{r}
 pa_hist <- df %>%
@@ -153,15 +163,72 @@ pa_hist <- df %>%
     geom_histogram(binwidth=3, fill="#69b3a2", color="#e9ecef", alpha=0.9)
 pa_hist
 ```
+The distribution of physical activity looks positively skewed with more physical activity scores clustered around the low end of the scale.
 
+### Motivation boxplot 
 
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+motiv_outlier <- ggplot(df) +
+  aes(x = "", y = motivation) +
+  geom_boxplot(fill = "#0c4c8a", alpha = 0.9) +
+  theme_minimal()
+motiv_outlier
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+There is eveidence of a potential outlier on the minimum of the motivation boxplot. A participant had a very low motivation score, that's different from other participants.
+
+### Physical activity boxplot
+
+```{r}
+pa_outlier <- ggplot(df) +
+  aes(x = "", y = physical_activity) +
+  geom_boxplot(fill = "#0c4c8a", alpha = 0.9) +
+  theme_minimal()
+pa_outlier
+```
+There is evidence of potential outlier above the maximum for physical activity. Three of the participants had a very high degree of physical activity as compared to others.
+
+### descriptive statistics of motivation
+
+```{r}
+round(stat.desc(df$motivation, norm = TRUE), 2)
+```
+
+The mean and standard deviation of the motivation score is 49.83 and 27.36, this shows that there is the motivation scores of the participants are widely spread away from the mean.
+
+The SE of 3.79, being relatively big, gives us an indication that our mean motivation is not relatively close to the true mean motivation of our overall population.
+
+### descriptive statistics of physical activity
+
+```{r}
+round(stat.desc(df$physical_activity, norm = TRUE),2)
+```
+
+The mean and standard deviation of the physical activity score is 28.85 and 28.15, this shows that there is the degree of physical activity of the participants are widely spread away from the mean.
+
+The SE of 3.60, being relatively big, gives us an indication that our mean physical activity is not relatively close to the true mean physical activity of our overall population.
+
+## Part 4 - Correlation
+
+### Scatterplot
+
+```{r}
+motiv_pa_scatter <- ggplot(df) +
+  aes(x = motivation, y = physical_activity) +
+  geom_point(fill = "#0c4c8a", alpha = 0.9) +
+  geom_smooth() +
+  theme_minimal()
+motiv_pa_scatter
+```
+
+The graph shows that the higher the motivation to exercise, the higher the degree of physical activity recorded. Most of the participants are clustered around this area. Only one participant falls in the low motivation to exercise and low physical activity area. 
+
+### Pearson correlation
+
+```{r}
+cor(df$motivation, df$physical_activity, use = "na.or.complete", method = "pearson")
+```
+
+The Pearson correlation coefficient is 0.296, which show that there is a positive linear relationship between motivation and physical activity, but this relationship is small.
+
+Pearson method was used because it measures the linear relationship between two continuous variables, while spearman measures the relationship between two ordinal variables (https://towardsdatascience.com/clearly-explained-pearson-v-s-spearman-correlation-coefficient-ada2f473b8).
