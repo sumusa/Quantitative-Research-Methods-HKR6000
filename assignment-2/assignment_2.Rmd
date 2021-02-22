@@ -17,7 +17,7 @@ library(knitr)
 
 ## Read in the dataset
 
-```{r cars}
+```{r}
 df <- read.csv("BIO_OlderAdultPilot_6000_SA.csv")
 head(df)
 ```

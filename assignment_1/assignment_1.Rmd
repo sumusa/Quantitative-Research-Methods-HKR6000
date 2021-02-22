@@ -265,6 +265,14 @@ bmi_outlier
 
 Potential outliers are evident in the boxplot for BMI.
 
+```{r}
+height_weight_scatter <- ggplot(df) +
+  aes(x = weight_kg, y = height_cm) +
+  geom_point(alpha = 0.2) +
+  stat_smooth(method = "lm", color = "red") +
+  geom_smooth()
+height_weight_scatter
+```
 
 
 
