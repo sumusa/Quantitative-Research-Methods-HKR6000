@@ -1,0 +1,347 @@
+---
+title: "Assignment 4"
+author: "Sumayyah Musa"
+date: "3/2/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(pastecs)
+library(moderndive)
+library(psych)
+library(car)
+```
+
+## RESEARCH QUESTION
+What is the relationship between exercise motivation, self efficacy and the level of participation in leisure physical activity of older adults?
+
+## RESEARCH DESIGN AND VARIABLES
+Quantitative Research Design - A cross-sectional study.
+Variables are:
+* Motivation to exercise
+* Exercise self efficacy, and
+* Physically active leisure
+
+## ANALYSIS AND RESULTS
+### Part 1 - Descriptive Statistics
+
+#### Reading in the data
+
+```{r}
+data <- read.csv("ExerciseAdherance_OlderAdults.csv")
+```
+
+#### Print the data object
+
+```{r}
+glimpse(data)
+```
+
+#### Changing the type of variable "id"
+
+```{r}
+data$id <- as.character(data$id)
+```
+
+## Variable - Motivation to Exercise
+
+```{r}
+describe(data$motive)
+```
+
+The mean motivation score is 3.41, which suggests that on average, the motivation of older adults to exercise is on the medium side. The standard deviation is 0.74, the scores are closely spread around the mean.
+The standard error of the mean is 0.05, this shows that the mean is representative of the motivation score of older adults in NL.
+
+## Exploratory Data Analysis
+
+```{r}
+hist_motive <- ggplot(data = data, aes(motive)) + 
+                  geom_histogram() +
+                ggtitle("Histogram of Uncleaned Motivation")
+plot(hist_motive)
+```
+
+The distribution is negatively skewed as the skewness is -0.46, which indicates that majority of the participants have medium motivation to exercise.The kurtosis is 0.51, indicates mesokurtic.
+
+Let's plot a boxplot
+
+```{r}
+box_motive <- ggplot(data = data, aes(motive)) + 
+                  geom_boxplot() +
+                  ggtitle("Uncleaned Motivation Score") +
+                  coord_flip()
+plot(box_motive)
+```
+Outliers are visible below the minimum of the boxplot, but they are closer to the IQR of the boxplot, we are going to leave them.
+
+Let's arrange in ascending order to see the exact values of these potential outliers
+
+```{r}
+head(arrange(data, motive), 10)
+```
+
+The values are still within range, so we are keeping the scores.
+
+
+```{r}
+summary(data$motive)
+```
+
+The summary statistics show that there are 10 missing values in the motivation score. This is less than 5% of the total number of observations, so we will drop them.
+
+### Removing missing data
+
+```{r}
+motive_cleaned_data <- drop_na(data, motive)
+```
+
+Compare the distribution histogram
+
+```{r}
+#histogram
+hist_motive_cleaned <- ggplot(data = motive_cleaned_data, aes(motive)) + 
+                  geom_histogram() +
+                  ggtitle("Cleaned Motivation score")
+#histogram for outlier-cleaned data
+plot(hist_motive_cleaned) 
+
+#histogram for uncleaned data
+plot(hist_motive) 
+```
+
+There is little to no change in the histogram.
+
+## Variable - Self Efficacy
+
+```{r}
+describe(motive_cleaned_data$efficacy)
+```
+The mean self efficacy score is 65.69, which suggests that on average, the confidence of older adults in their ability to exercise is slightly high. The standard deviation is 13.81, the scores are widely spread around the mean.
+The standard error of the mean is 1.01, slightly above 1, this shows that the mean is  roughly representative of the self efficacy score of older adults in NL.
+
+```{r}
+hist_efficacy <- ggplot(data = motive_cleaned_data, aes(efficacy)) + 
+                  geom_histogram() +
+                ggtitle("Histogram of Uncleaned Self Efficacy")
+plot(hist_efficacy)
+```
+The distribution is negatively skewed as the skewness is -0.33, which indicates that majority of the participants have medium self efficacy to exercise.The kurtosis is 0.37, indicates mesokurtic. There is also the presence of outliers.
+
+Let's plot a boxplot to view the outlier.
+
+```{r}
+box_efficacy <- ggplot(data = motive_cleaned_data, aes(efficacy)) + 
+                  geom_boxplot() +
+                  ggtitle("Uncleaned Self Efficacy Score") +
+                  coord_flip()
+plot(box_efficacy)
+```
+One potential outlier below the minimum of the boxplot.
+
+Arrange in descending order to view the exact value of the score.
+
+```{r}
+head(arrange(motive_cleaned_data, (efficacy)), 10)
+```
+
+The lowest score is 15%, and it is far away from the next score of 28%. We will remove any score below 28.
+
+```{r}
+efficacy_no_outliers <- filter(motive_cleaned_data, is.na(efficacy) | efficacy > 16)
+```
+
+Compare the boxplots afterwards,
+
+```{r}
+#boxplots
+box_efficacy_no_outlier <- ggplot() + 
+                  geom_boxplot(data = efficacy_no_outliers, aes(efficacy)) +
+                  ggtitle("Outlier-Cleaned Self efficacy") +
+                  coord_flip()
+#boxplot for outlier-cleaned data
+plot(box_efficacy_no_outlier) 
+
+#boxplot for uncleaned data
+plot(box_efficacy) 
+```
+
+```{r}
+summary(efficacy_no_outliers$efficacy)
+```
+
+There are 24 missing values. This is a large number, about 15% of the total dataset. We will replace the missing values with the median score of 65.69 instead.
+
+```{r}
+efficacy_cleaned_data <- efficacy_no_outliers %>%
+        mutate(efficacy = replace(efficacy,
+                                  is.na(efficacy),
+                                  median(efficacy, na.rm = TRUE)))
+```
+
+
+```{r}
+summary(efficacy_cleaned_data$efficacy)
+```
+
+Compare the distribution - histogram
+
+```{r}
+#histogram
+hist_efficacy_cleaned <- ggplot(data = efficacy_cleaned_data, aes(efficacy)) + 
+                  geom_histogram() +
+                  ggtitle("Cleaned Self efficacy Score")
+#histogram for outlier-cleaned data
+plot(hist_efficacy_cleaned) 
+
+#histogram for uncleaned data
+plot(hist_efficacy) 
+```
+
+## Variable - Participation
+
+```{r}
+describe(efficacy_cleaned_data$participation)
+```
+The mean participation score is 8.89, which suggests that on average, the confidence of older adults in their ability to exercise is really low. The standard deviation is 6.97, whis is more than half the mean, it indicates that the scores are widely spread around the mean.
+The standard error of the mean is 0.48, this shows that the mean is slightly representative of the partipation in physical activity score of older adults in NL.
+
+```{r}
+hist_participation <- ggplot(data = efficacy_cleaned_data, aes(participation)) + 
+                  geom_histogram() +
+                ggtitle("Histogram of Uncleaned Participation")
+plot(hist_participation)
+```
+The distribution is positively skewed, most of the participants lie at the lower end of the participation score.
+
+A boxplot to view outliers.
+
+```{r}
+box_participation <- ggplot(data = efficacy_cleaned_data, aes(participation)) + 
+                  geom_boxplot() +
+                  ggtitle("Uncleaned Participation Score") +
+                  coord_flip()
+plot(box_participation)
+```
+Four potential outliers above the maximum, but they are within 1.5 the IQR.
+
+Arrange in descending order to view the exact values of the outliers
+
+```{r}
+head(arrange(efficacy_cleaned_data, desc(participation)), 10)
+```
+
+The values are still in range, so we will include them as part of our analysis.
+
+```{r}
+summary(efficacy_cleaned_data$participation)
+```
+
+There are no missing values in participation.
+
+## MULTIPLE REGRESSION
+
+```{r}
+summary(efficacy_cleaned_data, quantile.type = 1)
+```
+### Correlation coefficients
+
+```{r}
+df <- efficacy_cleaned_data
+
+df %>% select(participation, motive, efficacy) %>%
+        cor()
+```
+
+The correlation coefficient of Participation to motivation is 0.267. This indicates a weak positive linear relationship.
+
+Participation to efficacy is 0.109, which is suggestive of another positive, but weak relationship, which is not as strong as motivation.
+
+The correlation coefficient of the two predictor variables (Motivation and Self efficacy), is 0.21. The degree of multicollinearity is really low. We can't make a pretty good guess of someone's self efficacy to exercise if we knew their level of motivation.
+
+### Scatterplots
+
+```{r}
+ggplot(df, aes(x = motive, y = participation)) +
+        geom_point() +
+        labs(x = "Motivation to Exercise", y = "Participation", title = "Scatterplot motivation by partipation and a regression line") +
+        geom_smooth(method = "lm", formula = y ~ x)
+```
+
+This supports the earlier positive correlation coefficient we got earlier. An increse in motivation, leads to an increase in participation.
+
+```{r}
+ggplot(df, aes(x = efficacy, y = participation)) +
+        geom_point() +
+        labs(x = "Exercise Self Efficacy", y = "Participation", title = "Scatterplot self efficacy by partipation and a regression line") +
+        geom_smooth(method = "lm", formula = y ~ x)
+```
+
+### Fit Multiple Regression Model
+
+```{r}
+partic_model <- lm(participation ~ motive + efficacy, data = df)
+# Get regression table:
+get_regression_table(partic_model)
+```
+
+The method of regression used was the hierarchical 
+
+```{r}
+summary(partic_model)
+```
+```{r}
+confint(partic_model)
+```
+
+```{r}
+plot(partic_model)
+```
+
+* The Cook's distance is not up to 1, whch means that the effect of a single observation on our model is not much.
+
+* The variance at each level of the residuals seems constant which signifies Homoscedasticity.
+
+* The Multiple R-squared is 0.07424,and the Adjusted R-squared is 0.0652, these values are really small, which shows that the line is representative of the data.
+
+* The F-ratio is 8.219 on 2 and 205 degree of freedom, and the p-value: 0.0003684, the f-ratio is really large which shows that the linear model is a good model.
+
+* The estimate of motivation is 2.392, which indicates that for every unit increase in motivation to exercise, there is an associated increase, on average, of 2.392 unit of participation score.
+
+For self efficacy, the estimate is 0.031, for every unit increase in self efficacy score, there is 0.031 unit of increase in participation score.
+
+* Standard error of motivation is 0.344 which suggests that we can expect about 0.344 units of variation in the motivation score of the population.
+
+Standard error of self efficacy is 0.038, which suggests that we can expect about 0.038 units of variation in the self efficacy score of the population.
+
+* The p-value of motivation is 0, which means that we reject the null hypothesis that there is no relationship between motivation and participation. It indicates that there is a significant positive relationship between the motivation to exercise and participation in physical activity.
+
+The p-value of self efficacy is 0.42 which is high (> 0.05), which means that we accept the null hypothesis that there is no relationship between self efficacy and participation.
+
+* The confidence interval of motivation means that we are 95% ‘confident’ that the true population slope lies between 1.12 and 3.66.
+
+The confidence interval of self efficacy means that we are 95% ‘confident’ that the true population slope lies between -0.04 and 0.11. This is closer to zero, which means that the true population slope will be 0, to show that there is no relationship between self efficacy and participation.
+
+* There exists an independence in the residuals between observations, as each participant's id is unique, and we assume that the score of a participant does not affect the score of another, therefore the condition of independence is met.
+
+```{r}
+regression_points <- get_regression_points(partic_model)
+```
+
+```{r}
+ggplot(regression_points, aes(x = residual)) +
+  geom_histogram() +
+  labs(x = "Residual")
+```
+
+This histogram shows that we have more negative residuals than positive, and there is a slight right-skew.
+
+
+
+
+
+
+
+
+
