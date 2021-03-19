@@ -248,7 +248,7 @@ plot(hist_weight)
 ```
 The histogram indicates that there are values outside the distribution. A boxplot will give more information about the outliers.
 
-#### Let's make a boxplot for height
+#### Let's make a boxplot for weight
 
 ```{r}
 box_weight <- ggplot(data = age_cleaned_data, aes(weight_kg)) + 

@@ -1,0 +1,174 @@
+---
+title: "Part 1"
+author: "Sumayyah Musa"
+date: "3/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(plyr)
+library(ggbeeswarm)
+library(pastecs)
+```
+
+## Read in and glimpse the data
+
+```{r}
+val_data <- read.csv("wearable_review_data_validity.csv")
+glimpse(val_data)
+```
+
+## Data Cleaning
+### Recoding variables that we are examining.
+
+LOCATION 
+List out the different locations that the studies took place.
+
+```{r}
+unique(val_data$location)
+```
+
+```{r}
+val_data <- val_data %>%
+        mutate(country = case_when(
+                grepl("+USA", location) ~ "USA",
+                grepl("+CAN", location) ~ "Canada",
+                grepl("+AUS", location) ~ "Australia",
+                grepl("+UK", location) ~ "United Kingdom",
+                TRUE ~ location
+                ))
+```
+
+```{r}
+table(val_data$country)
+```
+
+```{r}
+relax_histo_group <- ggplot(val_data, aes(MPE)) + 
+                  geom_histogram() + 
+                  facet_wrap(~ Wear_Location)
+plot(relax_histo_group)
+```
+
+```{r}
+group_relaxation <- ggplot(validity_mpe_hr_control, aes(x = age_code_new, y = MPE)) + 
+                  geom_boxplot() 
+plot(group_relaxation)
+```
+
+
+
+
+```{r}
+val_data <- val_data %>%
+        mutate(age_category = case_when(
+                age <= 11 ~ "children",
+                age > 11 & age <= 17 ~ "youths",
+                age > 17 & age <= 64 ~ "adults",
+                age > 64 ~ "older adults"
+        ))
+```
+
+```{r}
+unique(val_data$age_category)
+```
+
+```{r}
+# Filter MPE to remove NAs
+validity_mpe <- filter(val_data, !is.na(val_data$MPE))
+
+# Filter MPE into data frames by measure type
+validity_mpe_ee <- filter(validity_mpe, Measured == "EE")
+validity_mpe_sc_unfilter <- filter(validity_mpe, Measured == "SC")
+validity_mpe_hr <- filter(validity_mpe, Measured == "HR")
+
+# Filter MPE by collection setting
+
+validity_mpe_sc_control <- filter(validity_mpe_sc_unfilter, Setting == "Controlled")
+validity_mpe_ee_control <- filter(validity_mpe_ee, Setting == "Controlled")
+validity_mpe_hr_control <- filter(validity_mpe_hr, Setting == "Controlled")
+validity_mpe_sc_free <- filter(validity_mpe_sc_unfilter, Setting == "Free-Living")
+validity_mpe_ee_free <- filter(validity_mpe_ee, Setting == "Free-Living")
+validity_mpe_hr_free <- filter(validity_mpe_hr, Setting == "Free-Living")
+```
+
+
+```{r}
+validity_mpe_sc_wearlocfilter_control <- filter(validity_mpe_sc_control, #!is.na(val_data$Wear_Location)
+                                                )
+
+mpe_plot_sc_wearlocfilter_control <- ggplot(validity_mpe_sc_wearlocfilter_control, aes(x = location_cat, y = MPE, colour = location_cat)) +
+                    geom_boxplot() +
+                    geom_beeswarm(dodge.width = 0.2, cex = 0.2, alpha = 0.08) +   
+                    geom_hline(yintercept = 0) +  
+                    geom_hline(yintercept = 0.03, size = 0.5, colour = "grey", linetype = "dashed") + 
+                    geom_hline(yintercept = -0.03, size = 0.5, colour = "grey", linetype = "dashed") +   
+                    #scale_y_continuous(limits=c(-1, 1),labels = percent) +
+                    theme_classic() +
+                    ylab("Step MPE") +
+                    scale_colour_brewer(palette = "Dark2") +
+                    theme(legend.position = "none")
+plot(mpe_plot_sc_wearlocfilter_control)
+```
+
+```{r}
+unique(val_data$Wear_Location)
+```
+
+```{r}
+table(val_data$location_cat)
+```
+
+```{r}
+count(val_data$Wear_Location)
+```
+
+```{r}
+count(val_data, "age_category")
+```
+
+```{r}
+summary(val_data$MPE)
+```
+
+```{r}
+val_data <- val_data %>%
+        mutate(sex = case_when(
+                population_m > population_f ~ "Male",
+                population_m < population_f ~ "Female",
+                population_m == population_f ~ "NA"
+        ))
+```
+
+
+```{r}
+unique(val_data$sex)
+table(val_data$sex)
+```
+
+```{r}
+val_data <- val_data %>%
+        mutate(age_code_new = case_when(
+                age >= 65 ~ "Older adults",
+                age_code == 'A' ~ "Adults",
+                age_code == 'C' ~ "Children"
+                ))
+```
+
+```{r}
+unique(val_data$age_code_new)
+table(val_data$age_code_new)
+```
+
+
+```{r}
+
+```
+
+
+
+
+
+
