@@ -85,7 +85,7 @@ plot(stress_box)
 
 ```{r}
 stress_data %>% 
-  group_by(group) %>%
+  #group_by(group) %>%
   identify_outliers("stress")
 ```
 This shows that there are no outliers.

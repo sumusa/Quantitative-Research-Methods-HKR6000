@@ -1,0 +1,149 @@
+---
+title: "Assignment 6"
+author: "Sumayyah Musa"
+date: "04/04/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(pairwiseComparisons)
+library(pastecs)
+library(ggpubr)
+library(rstatix)
+library(multcomp)
+```
+
+```{r}
+iron_data <- read.csv("RM_ANOVA.csv")
+head(iron_data,6)
+```
+
+```{r}
+glimpse(iron_data)
+```
+
+```{r}
+iron_data$ï..id <- as.factor(iron_data$ï..id)
+```
+
+```{r}
+names(iron_data)[1] <- "id"
+head(iron_data)
+```
+
+```{r}
+iron_data$group <- fct_relevel(iron_data$group, c("no vitamin C", "vitamin C"))
+iron_data$dose <- fct_relevel(iron_data$dose, c("verylow", "low", "medium", "high"))
+```
+
+```{r}
+stat.desc(iron_data$iron_level)
+```
+
+The grand mean iron level is 13.4, standard deviation is 5.09, and standard error is 0.57.
+
+```{r}
+iron_data %>%
+  group_by(group,dose) %>%
+  get_summary_stats(iron_level, type = "mean_sd")
+```
+The mean of 
+```{r}
+grp_box <- ggplot(iron_data, aes(x = dose, y = iron_level, fill = group)) +
+            geom_boxplot() +
+            theme_classic()
+plot(grp_box)
+```
+
+```{r}
+iron_data %>%
+  group_by(dose) %>%
+  identify_outliers(iron_level)
+```
+
+There is no extreme outlier in the data.
+
+```{r}
+iron_data %>%
+  group_by(dose,group) %>%
+  shapiro_test(iron_level)
+```
+
+The iron level score was normally distributed at each dose level, as assessed by Shapiro Wilk's test (p>0.05)
+
+```{r}
+ggqqplot(iron_data, "iron_level", facet.by = "dose")
+ggqqplot(iron_data, "iron_level", facet.by = "group")
+```
+
+From the plot above, as all the points fall approximately along the reference line, we can assume normality of the data.
+
+```{r}
+with(iron_data, interaction.plot(dose, group, iron_level,
+  ylim = c(10, 20), lty = c(1, 12), lwd = 3,
+  ylab = "mean of iron level", xlab = "dose", trace.label = "group"))
+```
+From the interaction plot above, 
+
+```{r}
+rm_aov <- aov(iron_level ~ group*dose, data = iron_data)
+summary(rm_aov)
+```
+
+The iron level score was statistically significantly different at the different dose level, F(2.24, 42.47) = 4.73, p < 0.05, eta2[g] = 0.11.
+
+The p value is less than 0.05 to show that there are significant differences between doses.
+
+The generalized eta squared (effect size) is 0.11. It measures the proportion of the variability in the outcome variable (here iron level) that can be explained in terms of the predictor (here, amount of dose). An effect size of 0.11 means that 11% of the change in the iron level can be accounted for by the amount of dose.
+
+```{r}
+# Dose as factor
+lm_model <- lm(iron_level ~ dose, data = iron_data)
+summary(lm_model)
+```
+The medium dose estimate is 3.4, with p value of 0.03, means that a unit increase in the medium dose causes an increase of 3.45 in the blood iron levels.
+The medium dose of iron supplement had the greatest increase in blood iron levels.
+
+```{r}
+# Group as factor
+lm_bet_model <- lm(iron_level ~ group, data = iron_data)
+summary(lm_bet_model)
+```
+
+The p value is 0.728 (p<0.05), which indicates that there is no difference in the blood levels by Vitamin C intake. 
+
+```{r}
+#post-hoc tests
+pwc <- iron_data %>%
+  pairwise_t_test(
+    iron_level ~ dose, paired = TRUE,
+    p.adjust.method = "bonferroni"
+    )
+pwc
+```
+
+The result shows that the difference between the low and medium doses is statistically significant (p<0.05).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
